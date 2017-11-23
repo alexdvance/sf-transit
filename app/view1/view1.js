@@ -9,8 +9,7 @@ angular.module('myApp.view1', ['ngRoute'])
   });
 }])
 
-.controller('View1Ctrl', [function() {
-  console.log('hey')
+.controller('View1Ctrl', ['$http', function($http) {
   this.test = 'Test';
 
   var width = 960;
@@ -23,7 +22,6 @@ angular.module('myApp.view1', ['ngRoute'])
   var path = d3.geoPath().projection(projection);
 
   d3.json('/resources/sfmaps/streets.json', function(error, sf) {
-    console.log('sf', sf)
     if (error) throw error;
 
     projection
@@ -42,7 +40,25 @@ angular.module('myApp.view1', ['ngRoute'])
 
     svg.append('path')
       .datum(sf)
-      .attr('stroke', 'blue')
+      .attr('stroke', 'gray')
       .attr('d', path);
+
+    addVehicleInfo();
   });
+
+  function addVehicleInfo() {
+    $http.get('http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=sf-muni').then(function(response) {
+      var coords = response.data.vehicle.map(function(vehicle) {
+        return [parseFloat(vehicle.lon), parseFloat(vehicle.lat)];
+      });
+
+      svg.selectAll('circle')
+        .data(coords).enter()
+        .append('circle')
+        .attr('cx', function (d) { return projection(d)[0]; })
+        .attr('cy', function (d) { return projection(d)[1]; })
+        .attr('r', '1px')
+        .attr('fill', 'red');
+    });
+  }
 }]);
