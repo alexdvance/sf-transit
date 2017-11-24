@@ -1,3 +1,23 @@
-Test
-{{ vm.test }}
-<svg id="sf-map"></svg>
+<h1>San Francisco Muni info</h1>
+
+<div class="display-flex">
+  <span>Filter: </span>
+  <ul class="filter--list">
+    <li class="filter--item" ng-class="{ 'filter--item__active': !vm.map.filtersOn }"><a href="" ng-click="vm.filterRoute('All')" ng-bind="'All'"></a></li>
+    <li ng-repeat="route in vm.map.routes" class="filter--item" ng-class="{ 'filter--item__active': vm.map.filterHash[route] }">
+      <a href="" ng-click="vm.filterRoute(route)" ng-bind="route"></a></li>
+  </ul>
+</div>
+
+<svg id="sf-map-container">
+  <path id="sf-map"></path>
+  <circle ng-repeat="vehicle in vm.map.vehicles" ng-show="vm.map.filterHash[vehicle.routeTag]" ng-attr-cx="{{vehicle.coordX}}" ng-attr-cy="{{vehicle.coordY}}" title="{{vehicle.routeTag}}" r="1px" fill="red" />
+</svg>
+
+
+    <!-- .append('text')
+    .attr('font-size', '12px')
+    .attr('fill', 'black')
+    .attr('value', function(d) { return d.routeTag; })
+    .attr('x', function (d) { return projection([parseFloat(d.lon), parseFloat(d.lat)])[0]; })
+    .attr('y', function (d) { return projection([parseFloat(d.lon), parseFloat(d.lat)])[1]; }); -->
