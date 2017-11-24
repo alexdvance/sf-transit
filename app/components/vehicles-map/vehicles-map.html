@@ -1,0 +1,12 @@
+<svg id="sf-map-container">
+  <path id="sf-map"></path>
+  <circle ng-repeat="vehicle in vm.map.vehicles" ng-show="vm.map.filterHash[vehicle.routeTag]" ng-attr-cx="{{vehicle.coordX}}" ng-attr-cy="{{vehicle.coordY}}" title="{{vehicle.routeTag}}" r="1px" fill="red" />
+</svg>
+
+
+<!-- .append('text')
+.attr('font-size', '12px')
+.attr('fill', 'black')
+.attr('value', function(d) { return d.routeTag; })
+.attr('x', function (d) { return projection([parseFloat(d.lon), parseFloat(d.lat)])[0]; })
+.attr('y', function (d) { return projection([parseFloat(d.lon), parseFloat(d.lat)])[1]; }); -->
