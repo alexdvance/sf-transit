@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('myApp.view1', ['ngRoute'])
+angular.module('muni.view1', ['ngRoute', 'muni.utils', 'muni.localMapAPI', 'muni.nextBusAPI'])
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/view1', {
@@ -9,7 +9,7 @@ angular.module('myApp.view1', ['ngRoute'])
   });
 }])
 
-.controller('View1Ctrl', ['$http', '$interval', function($http, $interval) {
+.controller('View1Ctrl', ['$http', '$interval', 'utils', 'localMapAPI', 'nextBusAPI', function($http, $interval, utils, localMapAPI, nextBusAPI) {
   var map = {
     routes: [],
     vehicles: [],
@@ -29,16 +29,29 @@ angular.module('myApp.view1', ['ngRoute'])
   var projection = d3.geoAlbersUsa();
   var path = d3.geoPath().projection(projection);
 
-  d3.json('/resources/sfmaps/streets.json', function(error, sf) {
-    if (error) throw error;
+  localMapAPI.get().then(function(sfmap) {
+    createGeoJSONMap(sfmap.data);
 
+    addVehicleInfo();
+
+    // var timeToUpdate = 15;
+
+    // $interval(function() {
+    //   timeToUpdate = timeToUpdate > 1 ? timeToUpdate - 1 : 15;
+    //   console.log(timeToUpdate)
+    // }, 1000)
+
+    $interval(addVehicleInfo, 15000);
+  });
+
+  function createGeoJSONMap(GeoJSON) {
     projection
       .scale(1)
       .translate([0, 0]);
 
     // Compute the bounds of a feature of interest, then derive scale & translate.
     // https://stackoverflow.com/a/14691788
-    var b = path.bounds(sf),
+    var b = path.bounds(GeoJSON),
         s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
         t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
 
@@ -47,31 +60,21 @@ angular.module('myApp.view1', ['ngRoute'])
       .translate(t);
 
     svg.select('path#sf-map')
-      .datum(sf)
+      .datum(GeoJSON)
       .attr('stroke', 'gray')
       .attr('d', path);
-
-    addVehicleInfo();
-
-    var timeToUpdate = 15;
-
-    $interval(function() {
-      timeToUpdate = timeToUpdate > 1 ? timeToUpdate - 1 : 15;
-      console.log(timeToUpdate)
-    }, 1000)
-
-    $interval(addVehicleInfo, 15000);
-  });
+  }
 
   function addVehicleInfo() {
-    $http.get('http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a=sf-muni&t=' + lastTime).then(function(response) {
+    nextBusAPI.getVehicles(lastTime).then(function(response) {
       lastTime = response.data.lastTime.time;
 
+      // First time setup of route list and filters
       if (map.routes.length === 0) {
         map.routes = response.data.vehicle.map(function(vehicle) {
           return vehicle.routeTag;
         });
-        map.routes = uniq(map.routes).naturalSort();
+        map.routes = utils.uniq(map.routes).sort(utils.naturalSort);
 
         map.routes.forEach(function(route) {
           map.filterHash[route] = true;
@@ -105,21 +108,9 @@ angular.module('myApp.view1', ['ngRoute'])
       map.filtersOn = false;
     }
 
-    var allFiltersOn = true;
-    var allFiltersOff = true;
-
-    if (_route === 'All') {
-      clearFilters();
-    } else if (!map.filtersOn) {
-      Object.keys(map.filterHash).forEach(function(key) {
-        map.filterHash[key] = false;
-      });
-
-      map.filterHash[_route] = true;
-      map.filtersOn = true;
-      console.log('map.filtersOn', map.filtersOn)
-    } else {
-      map.filterHash[_route] = !map.filterHash[_route];
+    function shouldClearFilters() {
+      var allFiltersOff = true;
+      var allFiltersOn = true;
 
       Object.keys(map.filterHash).forEach(function(key) {
         if (map.filterHash[key])  {
@@ -130,7 +121,22 @@ angular.module('myApp.view1', ['ngRoute'])
         }
       });
 
-      if (allFiltersOn || allFiltersOff) {
+      return allFiltersOn || allFiltersOff;
+    }
+
+    if (_route === 'All') {
+      clearFilters();
+    } else if (!map.filtersOn) {
+      Object.keys(map.filterHash).forEach(function(key) {
+        map.filterHash[key] = false;
+      });
+
+      map.filterHash[_route] = true;
+      map.filtersOn = true;
+    } else {
+      map.filterHash[_route] = !map.filterHash[_route];
+
+      if (shouldClearFilters()) {
         clearFilters();
       } else {
         map.filtersOn = true;
@@ -138,34 +144,6 @@ angular.module('myApp.view1', ['ngRoute'])
     }
 
     console.log('filtered filterHash', map.filterHash)
-  }
-
-  // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
-  function uniq(a) {
-    var seen = {};
-    return a.filter(function(item) {
-        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-    });
-  }
-
-  // http://snipplr.com/view/36012/javascript-natural-sort/
-  Array.prototype.naturalSort = function(){
-    var a, b, a1, b1, rx=/(\d+)|(\D+)/g, rd=/\d+/;
-    return this.sort(function(as, bs){
-      a = String(as).toLowerCase().match(rx);
-      b = String(bs).toLowerCase().match(rx);
-
-      while(a.length && b.length){
-        a1 = a.shift();
-        b1 = b.shift();
-        if(rd.test(a1) || rd.test(b1)){
-          if(!rd.test(a1)) return 1;
-          if(!rd.test(b1)) return -1;
-          if(a1!= b1) return a1-b1;
-        } else if(a1!= b1) return a1> b1? 1: -1;
-      }
-      return a.length- b.length;
-    });
   }
 
   this.map = map;
