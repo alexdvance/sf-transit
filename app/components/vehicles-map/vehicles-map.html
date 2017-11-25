@@ -1,6 +1,11 @@
 <svg id="sf-map-container">
   <path id="sf-map"></path>
-  <circle ng-repeat="vehicle in vm.map.vehicles" ng-show="vm.map.filterHash[vehicle.routeTag]" ng-attr-cx="{{vehicle.coordX}}" ng-attr-cy="{{vehicle.coordY}}" title="{{vehicle.routeTag}}" r="1px" fill="red" />
+
+  <circle ng-repeat="(id, vehicle) in vm.mapData.vehiclesHash"
+        ng-show="vm.mapData.filterHash[vehicle.routeTag]"
+        ng-attr-cx="{{vehicle.coordX}}"
+        ng-attr-cy="{{vehicle.coordY}}"
+        title="{{vehicle.routeTag}}" r="1px" fill="red" />
 </svg>
 
 

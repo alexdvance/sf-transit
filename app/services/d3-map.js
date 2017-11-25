@@ -63,7 +63,6 @@ angular.module('muni.d3Map', [])
       setupFilters(response.data.vehicle);
     }
 
-    // Update data
     response.data.vehicle.forEach(function(vehicle) {
       vehicle.coordX = mapInfo.projection([parseFloat(vehicle.lon), parseFloat(vehicle.lat)])[0];
       vehicle.coordY = mapInfo.projection([parseFloat(vehicle.lon), parseFloat(vehicle.lat)])[1];
