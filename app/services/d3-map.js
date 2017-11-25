@@ -2,11 +2,12 @@ angular.module('muni.d3Map', [])
 
 .service('d3Map', ['utils', 'mapData', function(utils, mapData) {
   var mapInfo = {
-    width: 960,
-    height: 500,
+    width: window.innerWidth,
+    height: window.innerHeight - 60,
     svg: null,
     projection: null,
-    path: null
+    path: null,
+    zoom: null
   };
 
   function setupMap() {
@@ -15,6 +16,14 @@ angular.module('muni.d3Map', [])
       .attr('height', mapInfo.height);
     mapInfo.projection = d3.geoAlbersUsa();
     mapInfo.path = d3.geoPath().projection(mapInfo.projection);
+    mapInfo.zoom = d3.zoom()
+      .scaleExtent([1, 10])
+      .on('zoom', zoomed);
+
+    function zoomed() {
+      console.log('d3.event', d3.event)
+      d3.select('g').attr('transform', 'translate(' + d3.event.transform.x + ', ' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')');
+    }
   }
 
   function setupFilters(vehicleData) {
@@ -53,6 +62,14 @@ angular.module('muni.d3Map', [])
       .datum(GeoJSON)
       .attr('stroke', 'gray')
       .attr('d', mapInfo.path);
+
+    mapInfo.svg.append('rect')
+    .attr('class', 'overlay')
+    .attr('width', mapInfo.width)
+    .attr('height', mapInfo.height)
+    .attr('fill', 'transparent')
+    .attr('cursor', 'move')
+      .call(mapInfo.zoom)
   };
 
   this.addVehicleInfo = function(response) {
