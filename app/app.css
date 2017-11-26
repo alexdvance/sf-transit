@@ -5,6 +5,8 @@ body {
   background: #fffdf1;
 }
 
+
+/* Header */
 .header {
   position: fixed;
   top: 0;
@@ -22,10 +24,8 @@ body {
   font-size: 1em;
 }
 
-.display-flex {
-  display: flex;
-}
 
+/* Filter */
 .filter--list {
   float: left;
   list-style: none;
@@ -39,10 +39,36 @@ body {
 }
 
 .filter--item a {
-  color: #ffacd1;
+  color: #ff97c5;
   text-decoration: none;
 }
 
 .filter--item__active a {
-  color: #a5004a;
+  color: #ffe4f0;
+}
+
+
+/* Map */
+.map--base {
+  stroke: #808080;
+}
+
+.map--point {
+   r: 3px;
+   fill: #fb57a2;
+   transition: all 0.5s;
+ }
+
+.map--point-label {
+  font-size: 4px;
+  text-anchor: middle;
+  transform: translateY(1px);
+  fill: #fff;
+  transition: all 0.5s;
+}
+
+
+/* Utility */
+.display-flex {
+  display: flex;
 }
