@@ -5,14 +5,14 @@ angular.module('muni.routeFilterService', [])
     if (route === 'All') {
       clearFilters();
     } else if (!mapData.filtersOn) {
-      Object.keys(mapData.filterHash).forEach(function(key) {
-        mapData.filterHash[key] = false;
+      Object.keys(mapData.filtersHash).forEach(function(key) {
+        mapData.filtersHash[key] = false;
       });
 
-      mapData.filterHash[route] = true;
+      mapData.filtersHash[route] = true;
       mapData.filtersOn = true;
     } else {
-      mapData.filterHash[route] = !mapData.filterHash[route];
+      mapData.filtersHash[route] = !mapData.filtersHash[route];
 
       if (shouldClearFilters()) {
         clearFilters();
@@ -22,8 +22,8 @@ angular.module('muni.routeFilterService', [])
     }
 
     function clearFilters() {
-      Object.keys(mapData.filterHash).forEach(function(key) {
-        mapData.filterHash[key] = true;
+      Object.keys(mapData.filtersHash).forEach(function(key) {
+        mapData.filtersHash[key] = true;
       });
 
       mapData.filtersOn = false;
@@ -33,8 +33,8 @@ angular.module('muni.routeFilterService', [])
       var allFiltersOff = true;
       var allFiltersOn = true;
 
-      Object.keys(mapData.filterHash).forEach(function(key) {
-        if (mapData.filterHash[key])  {
+      Object.keys(mapData.filtersHash).forEach(function(key) {
+        if (mapData.filtersHash[key])  {
           allFiltersOff = false;
         } else {
           allFiltersOn = false;

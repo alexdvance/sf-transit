@@ -4,7 +4,7 @@
     <li class="filter--item" ng-class="{ 'filter--item__active': !vm.mapData.filtersOn }">
       <a href="" ng-click="vm.filterRoute('All')" ng-bind="'All'"></a>
     </li>
-    <li ng-repeat="route in vm.mapData.routes" class="filter--item" ng-class="{ 'filter--item__active': vm.mapData.filterHash[route] }">
+    <li ng-repeat="route in vm.mapData.routes" class="filter--item" ng-class="{ 'filter--item__active': vm.mapData.filtersHash[route] }">
       <a href="" ng-click="vm.filterRoute(route)" ng-bind="route"></a></li>
   </ul>
 </div>

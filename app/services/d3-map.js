@@ -31,7 +31,7 @@ angular.module('muni.d3Map', [])
     mapData.routes = utils.uniq(mapData.routes).sort(utils.naturalSort);
 
     mapData.routes.forEach(function(route) {
-      mapData.filterHash[route] = true;
+      mapData.filtersHash[route] = true;
     });
   }
 

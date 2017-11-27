@@ -9,7 +9,7 @@ angular.module('muni.mapStore', [])
     return mapStore.optsList[area] = {
       routes: [],
       vehiclesHash: {},
-      filterHash: {},
+      filtersHash: {},
       filtersOn: false,
       lastTime: 0
     };

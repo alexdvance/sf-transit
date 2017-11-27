@@ -3,7 +3,7 @@
     <path class="map--base"></path>
 
     <g ng-repeat="(id, vehicle) in vm.mapData.vehiclesHash"
-          ng-show="vm.mapData.filterHash[vehicle.routeTag]">
+          ng-show="vm.mapData.filtersHash[vehicle.routeTag]">
       <circle class="map--point"
             ng-attr-cx="{{vehicle.coordX}}"
             ng-attr-cy="{{vehicle.coordY}}"/>
