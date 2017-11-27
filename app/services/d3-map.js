@@ -55,12 +55,9 @@ angular.module('muni.d3Map', [])
       .attr('d', mapInfo.path);
 
     // Run zoom on rect element vs map group element for better performance
-    mapInfo.svg.append('rect')
-    .attr('class', 'overlay')
+    mapInfo.svg.select('rect')
     .attr('width', mapInfo.width)
     .attr('height', mapInfo.height)
-    .attr('fill', 'transparent')
-    .attr('cursor', 'move')
       .call(mapInfo.zoom)
   };
 
