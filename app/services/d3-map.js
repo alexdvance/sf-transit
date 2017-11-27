@@ -1,6 +1,6 @@
 angular.module('muni.d3Map', [])
 
-.service('d3Map', ['$window', 'utils', 'mapData', function($window, utils, mapData) {
+.service('d3Map', ['$window', 'utils', 'mapStore', function($window, utils, mapStore) {
   var mapInfo = {
     width: $window.innerWidth,
     height: $window.innerHeight - 60,
@@ -27,7 +27,7 @@ angular.module('muni.d3Map', [])
     }
   }
 
-  function setupFilters() {
+  function setupFilters(mapData) {
     mapData.routes = utils.uniq(mapData.routes).sort(utils.naturalSort);
 
     mapData.routes.forEach(function(route) {
@@ -54,7 +54,7 @@ angular.module('muni.d3Map', [])
       .datum(GeoJSON)
       .attr('d', mapInfo.path);
 
-    // Run zoom on rect element vs <g> for better performance
+    // Run zoom on rect element vs map group element for better performance
     mapInfo.svg.append('rect')
     .attr('class', 'overlay')
     .attr('width', mapInfo.width)
@@ -64,10 +64,11 @@ angular.module('muni.d3Map', [])
       .call(mapInfo.zoom)
   };
 
-  this.addVehicleInfo = function(response) {
-    mapData.lastTime = response.data.lastTime.time;
-
+  this.addVehicleInfo = function(response, area) {
+    var mapData = mapStore.optsList[area];
     var routesNotSet = mapData.routes.length === 0;
+
+    mapData.lastTime = response.data.lastTime.time;
 
     response.data.vehicle.forEach(function(vehicle) {
       vehicle.coordX = mapInfo.projection([parseFloat(vehicle.lon), parseFloat(vehicle.lat)])[0];
@@ -77,6 +78,6 @@ angular.module('muni.d3Map', [])
       routesNotSet && mapData.routes.push(vehicle.routeTag);
     });
 
-    routesNotSet && setupFilters();
+    routesNotSet && setupFilters(mapData);
   };
 }])

@@ -2,21 +2,28 @@ angular.module('muni.vehiclesMap', [])
 
 .component('vehiclesMap', {
   templateUrl: 'components/vehicles-map/vehicles-map.html',
-  bindings: {},
+  bindings: { area: '<' },
   controllerAs: 'vm',
-  controller: ['$element', '$interval', 'd3Map', 'mapData', 'localMapAPI', 'nextBusAPI', function($element, $interval, d3Map, mapData, localMapAPI, nextBusAPI) {
-      this.mapData = mapData;
+  controller: ['$scope', '$element', '$interval', 'd3Map', 'mapStore', 'localMapAPI', 'nextBusAPI', function($scope, $element, $interval, d3Map, mapStore, localMapAPI, nextBusAPI) {
+      var vm = this;
+      var mapData;
 
-      localMapAPI.get().then(function(sfmap) {
-        d3Map.createGeoJSONMap($element[0], sfmap.data);
+      vm.$onInit = function() {
+        mapData = vm.mapData = mapStore.optsList[vm.area];
 
-        nextBusAPI.getVehicles(mapData.lastTime)
-          .then(d3Map.addVehicleInfo);
+        localMapAPI.get(vm.area).then(function(response) {
+          d3Map.createGeoJSONMap($element[0], response.data);
 
-        $interval(function() {
-          nextBusAPI.getVehicles(mapData.lastTime)
-            .then(d3Map.addVehicleInfo);
-        }, 15000);
-      });
+          getAndAddVehicles();
+          $interval(getAndAddVehicles, 15000);
+        });
+      };
+
+      function getAndAddVehicles() {
+        nextBusAPI.getVehicles(vm.area, mapData.lastTime)
+          .then(function(response) {
+            d3Map.addVehicleInfo(response, vm.area);
+          });
+      }
     }]
 });
