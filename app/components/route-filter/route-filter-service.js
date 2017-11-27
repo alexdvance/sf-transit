@@ -14,11 +14,7 @@ angular.module('muni.routeFilterService', [])
     } else {
       mapData.filtersHash[route] = !mapData.filtersHash[route];
 
-      if (shouldClearFilters()) {
-        clearFilters();
-      } else {
-        mapData.filtersOn = true;
-      }
+      shouldClearFilters() && clearFilters();
     }
 
     function clearFilters() {
