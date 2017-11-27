@@ -1,57 +1,19 @@
-angular.module('muni.routeFilter', ['muni.mapData'])
+angular.module('muni.routeFilter', ['muni.routeFilterService'])
 
 .component('routeFilter', {
   templateUrl: 'components/route-filter/route-filter.html',
-  bindings: {},
+  bindings: { area: '<' },
   controllerAs: 'vm',
-  controller: ['mapData', function(mapData) {
-    function filterRoute(_route) {
-      function clearFilters() {
-        Object.keys(mapData.filterHash).forEach(function(key) {
-          mapData.filterHash[key] = true;
-        });
+  controller: ['mapStore', 'routeFilterService', function(mapStore, routeFilterService) {
+    var vm = this;
+    var mapData;
 
-        mapData.filtersOn = false;
-      }
+    vm.$onInit = function() {
+      mapData = vm.mapData = mapStore.optsList[vm.area];
+    };
 
-      function shouldClearFilters() {
-        var allFiltersOff = true;
-        var allFiltersOn = true;
-
-        Object.keys(mapData.filterHash).forEach(function(key) {
-          if (mapData.filterHash[key])  {
-            allFiltersOff = false;
-          } else {
-            allFiltersOn = false;
-          }
-        });
-
-        return allFiltersOn || allFiltersOff;
-      }
-
-      if (_route === 'All') {
-        clearFilters();
-      } else if (!mapData.filtersOn) {
-        Object.keys(mapData.filterHash).forEach(function(key) {
-          mapData.filterHash[key] = false;
-        });
-
-        mapData.filterHash[_route] = true;
-        mapData.filtersOn = true;
-      } else {
-        mapData.filterHash[_route] = !mapData.filterHash[_route];
-
-        if (shouldClearFilters()) {
-          clearFilters();
-        } else {
-          mapData.filtersOn = true;
-        }
-      }
-
-      console.log('filtered filterHash', mapData.filterHash)
-    }
-
-    this.filterRoute = filterRoute;
-    this.mapData = mapData;
+    vm.filterRoute = function(route) {
+      routeFilterService.filterRoute(route, mapData)
+    };
   }]
 });
